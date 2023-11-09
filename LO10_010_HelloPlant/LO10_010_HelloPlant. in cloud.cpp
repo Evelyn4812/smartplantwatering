@@ -7,10 +7,9 @@
  */
 
 // Include Particle Device OS APIs
-
+#include "IoTClassroom_CNM.h"
 //#include "tclPlatDecls.h"
 #include "Particle.h"
-#include "IoTClassroom_CNM.h"
 #include <Adafruit_MQTT.h>
 #include "Adafruit_MQTT/Adafruit_MQTT_SPARK.h"
 #include "Adafruit_MQTT/Adafruit_MQTT.h"
@@ -42,34 +41,31 @@ float subValue;
 
 IoTTimer soilTimer;
 
-void MQTT_connect();
-bool MQTT_ping();
-
 void setup() {
     Serial.begin(9600);
     pinMode(SENSORPIN,INPUT);
     pinMode(PUMPPIN,OUTPUT);
-    mqtt.subscribe(&waterButtonFeed);
+    currentTime = millis();
 }
 
 void loop() {
-  currentTime = millis();
-  MQTT_connect();
-  MQTT_ping();
    sensorValue=analogRead(SENSORPIN);
    Serial.printf("%i\n",sensorValue);
     
-    if((currentTime - lastSecond) > 1800000){
-      if (sensorValue > 2930){ 
-        digitalWrite(PUMPPIN,HIGH);
-        delay(500); 
-        digitalWrite(PUMPPIN,LOW);
+    if((currentTime - lastSecond) > 60000){
+    if (sensorValue > 2930){ 
+    digitalWrite(PUMPPIN,HIGH);
+    delay(500); 
+    digitalWrite(PUMPPIN,LOW);
+
       }
-      if(mqtt.Update()) {
-        moistureFeed.publish(sensorValue);
-        Serial.printf("Publishing %i\n",sensorValue); 
+    
+   lastSecond = millis();
+    if(mqtt.Update()) {
+      moistureFeed.publish(sensorValue);
+      Serial.printf("Publishing %i\n",sensorValue); 
       }
-      lastSecond = millis();
+    //randomTime = millis();
   }
   
  Adafruit_MQTT_Subscribe *subscription;
@@ -127,6 +123,9 @@ bool MQTT_ping() {
   return pingStatus;
 }
 
+      
+    
+   
    
     
   
